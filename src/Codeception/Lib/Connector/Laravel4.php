@@ -8,8 +8,11 @@ class Laravel4 extends Client
 
     protected function doRequest($request)
     {
-        $this->rebootKernel();
-        $this->kernel->setRequestForConsoleEnvironment();
+        // boots the framework or does nothing if booted already
+	$this->kernel->boot();
+
+	// ensure full http headers even when requests are made from CLI
+	$this->kernel->setRequestForConsoleEnvironment();
 
         $headers = $request->headers;
 
@@ -20,13 +23,5 @@ class Laravel4 extends Client
             $headers->set('referer', $this->getHistory()->current()->getUri());
         }
         return $response;
-    }
-
-     protected function rebootKernel()
-    {
-        $booted = new \ReflectionProperty($this->kernel, 'booted');
-        $booted->setAccessible(true);
-        $booted->setValue($this->kernel, false);
-        $this->kernel->boot();
     }
 }
